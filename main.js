@@ -1,11 +1,13 @@
-let bleDevice;
-let bleCharacteristic;
+let bleDevice = null;
+let bleCharacteristic = null;
 let selectedDevice = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     const devices = document.querySelectorAll(".devices .device1, .devices .device2, .devices .device3, .devices .device4");
     const onButton = document.querySelector(".on");
-    const connectButton = document.querySelector(".btn .connect");
+    const connectButton = document.querySelector(".ConnectDiv .connect");
+    const contd = document.querySelector(".contd");
+    const contddevice = document.querySelector(".contddevice");
 
     devices.forEach(device => {
         device.addEventListener("click", () => {
@@ -35,9 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Getting Characteristic...");
             bleCharacteristic = await service.getCharacteristic('abcd1234-5678-1234-5678-abcdef123456');
 
-            connectButton.innerText = "Disconnect";
-            connectButton.style.backgroundColor = "red";
-            alert("✅ Connected to ESP32 via Bluetooth!");
+            onConnected();
 
             // Handle disconnect event
             bleDevice.addEventListener("gattserverdisconnected", onDisconnected);
@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (bleDevice && bleDevice.gatt.connected) {
             console.log("Disconnecting...");
             bleDevice.gatt.disconnect();
+            bleDevice = null; // Reset device after disconnection
         } else {
             alert("You're not connected to any device.");
         }
@@ -61,7 +62,24 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("ESP32 Disconnected.");
         connectButton.innerText = "Connect";
         connectButton.style.backgroundColor = "green";
-        alert("🔌 ESP32 Disconnected!");
+        // alert("🔌 ESP32 Disconnected!");
+        contd.innerHTML = "Disconnected";
+        contd.style.color = "red";
+        contddevice.innerHTML = "No Device";
+        bleDevice = null; // Ensure BLE device is reset
+    }
+
+    function onConnected() {
+        connectButton.innerText = "Disconnect";
+        connectButton.style.backgroundColor = "red";
+        // alert("✅ Connected to ESP32 via Bluetooth!");
+        contd.innerHTML = "Connected";
+        contd.style.color = "green";
+        
+        // Ensure contddevice exists before updating
+        if (contddevice) {
+            contddevice.innerHTML = bleDevice.name;
+        }
     }
 
     async function sendCommand(command) {

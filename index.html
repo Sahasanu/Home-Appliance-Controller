@@ -4,15 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css">
     <title>Home Aplliance controller</title>
-    <link rel="shortcut icon" href="image.png" type="image/x-icon">
+    <link rel="shortcut icon" href="Logo.png" type="image/x-icon">
 </head>
 
 <body>
     <div class="container">
-        <p class="header">ESP32 Home Controller</p>
-
+        <p class="header">
+            <span>
+                <img src="Logo.png" alt="">
+            </span>
+            HomCont
+        </p>
+        <div class="ConnectDiv">
+            <div class="display">
+                <p class="contd">Not Connected</p>
+                <p class="contddevice">PLease Connect Device</p>
+            </div>
+            <div class="upbtn">
+                <button class="connect">Connect</button>
+            </div>
+        </div>
         <div class="devices">
             <div class="device device1">
                 <p>Appliance-1</p>
@@ -34,7 +47,7 @@
 
         <div class="btn">
             <button class="on">ON</button>
-            <button class="connect">Connect</button>
+
         </div>
     </div>
 
