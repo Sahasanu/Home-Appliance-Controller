@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             onConnected();
 
-            // Handle disconnect event
             bleDevice.addEventListener("gattserverdisconnected", onDisconnected);
 
         } catch (error) {
@@ -76,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
         contd.innerHTML = "Connected";
         contd.style.color = "green";
         
-        // Ensure contddevice exists before updating
         if (contddevice) {
             contddevice.innerHTML = bleDevice.name;
         }
@@ -102,13 +100,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (selectedDevice) {
             const statusEl = selectedDevice.querySelector(".status");
             const currentStatus = statusEl.textContent.includes("ON");
-            const deviceName = selectedDevice.querySelector("p").textContent;
+            const applianceName = selectedDevice.querySelector("p").textContent;
             const newStatus = currentStatus ? "OFF" : "ON";
-            const combinedData = newStatus + "_" + deviceName;
+            const combinedData = newStatus + "_" + applianceName;
 
             statusEl.textContent = `Status: ${newStatus}`;
             newStatus === "ON" ? (onButton.style.backgroundColor = "red") : (onButton.style.backgroundColor = "green");
-            onButton.innerHTML = newStatus === "ON" ? "OFF" : "ON";
+            onButton.innerHTML = (newStatus === "ON" ? "OFF" : "ON");
 
             sendCommand(combinedData);
         } else {
