@@ -9,15 +9,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const contd = document.querySelector(".contd");
     const contddevice = document.querySelector(".contddevice");
 
-    devices.forEach(device => {
-        device.addEventListener("click", () => {
-            if (selectedDevice) {
-                selectedDevice.style.border = "none";
-            }
-            selectedDevice = device;
-            selectedDevice.style.border = "2px solid black";
+    function aplnceHandeler() {
+        devices.forEach(device => {
+            device.addEventListener("click", () => {
+                if (selectedDevice) {
+                    selectedDevice.style.border = "none"; // Remove border from previously selected
+                }
+
+                selectedDevice = device;
+                selectedDevice.style.border = "2px solid black"; // Highlight new selection
+            });
         });
-    });
+    }
+    aplnceHandeler();
 
     async function connectBluetooth() {
         try {
@@ -51,7 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (bleDevice && bleDevice.gatt.connected) {
             console.log("Disconnecting...");
             bleDevice.gatt.disconnect();
-            bleDevice = null; // Reset device after disconnection
+            bleCharacteristic = null; // Reset characteristic
+            bleDevice = null; // Reset device
         } else {
             alert("You're not connected to any device.");
         }
@@ -61,22 +66,21 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("ESP32 Disconnected.");
         connectButton.innerText = "Connect";
         connectButton.style.backgroundColor = "green";
-        // alert("🔌 ESP32 Disconnected!");
         contd.innerHTML = "Disconnected";
         contd.style.color = "red";
         contddevice.innerHTML = "No Device";
+        bleCharacteristic = null; // Ensure BLE characteristic is reset
         bleDevice = null; // Ensure BLE device is reset
     }
 
     function onConnected() {
         connectButton.innerText = "Disconnect";
         connectButton.style.backgroundColor = "red";
-        // alert("✅ Connected to ESP32 via Bluetooth!");
         contd.innerHTML = "Connected";
         contd.style.color = "green";
-        
+
         if (contddevice) {
-            contddevice.innerHTML = bleDevice.name;
+            contddevice.innerHTML = bleDevice.name || "Unknown Device";
         }
     }
 
@@ -96,23 +100,41 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    onButton.addEventListener("click", () => {
-        if (selectedDevice) {
-            const statusEl = selectedDevice.querySelector(".status");
-            const currentStatus = statusEl.textContent.includes("ON");
-            const applianceName = selectedDevice.querySelector("p").textContent;
-            const newStatus = currentStatus ? "OFF" : "ON";
-            const combinedData = newStatus + "_" + applianceName;
-
-            statusEl.textContent = `Status: ${newStatus}`;
-            newStatus === "ON" ? (onButton.style.backgroundColor = "red") : (onButton.style.backgroundColor = "green");
-            onButton.innerHTML = (newStatus === "ON" ? "OFF" : "ON");
-
-            sendCommand(combinedData);
-        } else {
-            alert("⚡ Please select an appliance first!");
+    function Clickhandeler() {
+        if (!bleDevice || !bleDevice.gatt.connected) {
+            alert("Please Connect Your Device First!");
+            return;
         }
-    });
+
+        if (!selectedDevice) {
+            alert("⚡ Please select an appliance first!");
+            return;
+        }
+
+        const statusEl = selectedDevice.querySelector(".status");
+        if (!statusEl) {
+            alert("⚠️ Selected appliance has no status element!");
+            return;
+        }
+
+        const applianceName = selectedDevice.querySelector("p")?.textContent;
+        if (!applianceName) {
+            alert("⚠️ Could not determine appliance name!");
+            return;
+        }
+
+        const currentStatus = statusEl.textContent.includes("ON");
+        const newStatus = currentStatus ? "OFF" : "ON";
+        const combinedData = `${newStatus}_${applianceName}`;
+
+        statusEl.textContent = `Status: ${newStatus}`;
+        onButton.style.backgroundColor = newStatus === "ON" ? "red" : "green";
+        onButton.innerHTML = newStatus === "ON" ? "OFF" : "ON";
+
+        sendCommand(combinedData);
+    }
+
+    onButton.addEventListener("click", Clickhandeler);
 
     connectButton.addEventListener("click", () => {
         if (bleDevice && bleDevice.gatt.connected) {
