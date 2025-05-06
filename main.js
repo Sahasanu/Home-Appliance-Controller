@@ -13,11 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
         devices.forEach(device => {
             device.addEventListener("click", () => {
                 if (selectedDevice) {
-                    selectedDevice.style.border = "none"; // Remove border from previously selected
+                    selectedDevice.style.border = "none";
                 }
-
                 selectedDevice = device;
-                selectedDevice.style.border = "2px solid black"; // Highlight new selection
+                selectedDevice.style.border = "2px solid black";
             });
         });
     }
@@ -33,8 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.log("Connecting to GATT Server...");
             const server = await bleDevice.gatt.connect();
-            console.log("Connected to GATT Server!");
-
+            
             console.log("Getting Service...");
             const service = await server.getPrimaryService('12345678-1234-5678-1234-56789abcdef0');
 
@@ -42,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
             bleCharacteristic = await service.getCharacteristic('abcd1234-5678-1234-5678-abcdef123456');
 
             onConnected();
-
             bleDevice.addEventListener("gattserverdisconnected", onDisconnected);
 
         } catch (error) {
@@ -52,13 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function disconnectBluetooth() {
-        if (bleDevice && bleDevice.gatt.connected) {
-            console.log("Disconnecting...");
+        if (bleDevice?.gatt?.connected) {
             bleDevice.gatt.disconnect();
-            bleCharacteristic = null; // Reset characteristic
-            bleDevice = null; // Reset device
-        } else {
-            alert("You're not connected to any device.");
         }
     }
 
@@ -69,8 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
         contd.innerHTML = "Disconnected";
         contd.style.color = "red";
         contddevice.innerHTML = "No Device";
-        bleCharacteristic = null; // Ensure BLE characteristic is reset
-        bleDevice = null; // Ensure BLE device is reset
+        bleCharacteristic = null;
+        bleDevice = null;
     }
 
     function onConnected() {
@@ -78,10 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         connectButton.style.backgroundColor = "red";
         contd.innerHTML = "Connected";
         contd.style.color = "green";
-
-        if (contddevice) {
-            contddevice.innerHTML = bleDevice.name || "Unknown Device";
-        }
+        contddevice.innerHTML = bleDevice?.name || "Unknown Device";
     }
 
     async function sendCommand(command) {
@@ -91,8 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            let encoder = new TextEncoder();
-            await bleCharacteristic.writeValue(encoder.encode(command));
+            await bleCharacteristic.writeValue(new TextEncoder().encode(command));
             console.log(`✅ Sent command: ${command}`);
         } catch (error) {
             console.error("Error sending command:", error);
@@ -101,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function Clickhandeler() {
-        if (!bleDevice || !bleDevice.gatt.connected) {
+        if (!bleDevice?.gatt?.connected) {
             alert("Please Connect Your Device First!");
             return;
         }
@@ -112,35 +100,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const statusEl = selectedDevice.querySelector(".status");
-        if (!statusEl) {
-            alert("⚠️ Selected appliance has no status element!");
-            return;
-        }
-
-        const applianceName = selectedDevice.querySelector("p")?.textContent;
-        if (!applianceName) {
-            alert("⚠️ Could not determine appliance name!");
+        const applianceName = selectedDevice.querySelector("p")?.textContent.replace(" ", "-");
+        
+        if (!statusEl || !applianceName) {
+            alert("⚠️ Could not determine appliance status!");
             return;
         }
 
         const currentStatus = statusEl.textContent.includes("ON");
         const newStatus = currentStatus ? "OFF" : "ON";
-        const combinedData = `${newStatus}_${applianceName}`;
+        const command = `${newStatus}_${applianceName}`;
 
         statusEl.textContent = `Status: ${newStatus}`;
         onButton.style.backgroundColor = newStatus === "ON" ? "red" : "green";
-        onButton.innerHTML = newStatus === "ON" ? "OFF" : "ON";
+        onButton.textContent = newStatus === "ON" ? "OFF" : "ON";
 
-        sendCommand(combinedData);
+        sendCommand(command);
     }
 
     onButton.addEventListener("click", Clickhandeler);
-
     connectButton.addEventListener("click", () => {
-        if (bleDevice && bleDevice.gatt.connected) {
-            disconnectBluetooth();
-        } else {
-            connectBluetooth();
-        }
+        bleDevice?.gatt?.connected ? disconnectBluetooth() : connectBluetooth();
     });
 });
