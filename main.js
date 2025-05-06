@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const newStatus = currentStatus ? "OFF" : "ON";
         const command = `${newStatus}_${applianceName}`;
 
-        statusEl.textContent = `Status: ${newStatus}`;
+        statusEl.textContent = `${newStatus}`;
         onButton.style.backgroundColor = newStatus === "ON" ? "red" : "green";
         onButton.textContent = newStatus === "ON" ? "OFF" : "ON";
 
